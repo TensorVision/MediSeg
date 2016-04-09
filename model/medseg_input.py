@@ -188,6 +188,7 @@ def main():
 
     q = {}
     q['train'] = create_queues(hypes, 'train')
+    q['val'] = create_queues(hypes, 'val')
     data_dir = "../DATA"
     image_batch, label_batch = inputs(hypes, q, 'train', data_dir)
 
