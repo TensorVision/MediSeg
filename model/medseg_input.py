@@ -15,6 +15,7 @@ import json
 import logging
 import os
 import sys
+import random
 from random import shuffle
 
 import numpy as np
@@ -23,10 +24,11 @@ import scipy as scp
 import scipy.misc
 
 import tensorflow as tf
+from tensorflow.python.ops import math_ops
 
 
 logging.basicConfig(format='%(asctime)s %(levelname)s %(message)s',
-                    level=logging.DEBUG,
+                    level=logging.INFO,
                     stream=sys.stdout)
 
 
@@ -77,7 +79,7 @@ def _make_data_gen(hypes, phase, data_dir):
             "Invalid image_size"
         assert shape[1] - image_size > 0, \
             "Invalid image_size"
-
+        
         # Select Background Image
         for i in range(100):
             x = np.random.randint(shape[0] - image_size)
@@ -86,20 +88,14 @@ def _make_data_gen(hypes, phase, data_dir):
             gt_patch = gt_image[x:(x + image_size), y:(y + image_size)]
             mygt = (gt_patch != background_color)
             if np.sum(mygt) == 0:
-                image_patch = image[x:(x + image_size), y:(y + image_size)]
-                yield image_patch, 0
-                break
-
-        for i in range(100):
-            x = np.random.randint(shape[0] - image_size)
-            y = np.random.randint(shape[1] - image_size)
-
-            gt_patch = gt_image[x:(x + image_size), y:(y + image_size)]
-            mygt = gt_patch != background_color
-            if np.sum(mygt) > 0.1 * num_pixels:
+                if random.random() > 0.66:
+                    image_patch = image[x:(x + image_size), y:(y + image_size)]
+                    yield image_patch, 0
+            elif np.sum(mygt) > 0.1 * num_pixels:
                 image_patch = image[x:(x + image_size), y:(y + image_size)]
                 yield image_patch, 1
-                break
+                
+
 
 def placeholders(hypes):
     """ Placeholders are not used in cifar10"""
@@ -113,7 +109,11 @@ def create_queues(hypes, phase):
     shapes = (
         [arch['image_size'], arch['image_size'], arch['num_channels']],
         [],)
+    capacity = 100
     q = tf.FIFOQueue(capacity=100, dtypes=dtypes, shapes=shapes)
+    tf.scalar_summary("queue/%s/fraction_of_%d_full" % (q.name + phase, capacity),
+                      math_ops.cast(q.size(), tf.float32) * (1. / capacity))
+
     return q
 
 
@@ -143,15 +143,15 @@ def start_enqueuing_threads(hypes, q, sess, data_dir):
         gen = _make_data_gen(hypes, phase, data_dir)
         data = gen.next()
         sess.run(enqueue_op[phase], feed_dict=make_feed(data))
-        threads.append(tf.train.threading.Thread(target=enqueue_loop,
-                                                 args=(sess, enqueue_op,
-                                                       phase, gen)))
+        num_threads = 4
+        for i in range(num_threads):
+            threads.append(tf.train.threading.Thread(target=enqueue_loop,
+                                                     args=(sess, enqueue_op,
+                                                           phase, gen)))
         threads[-1].start()
 
-
-def inputs(hypes, q, phase, data_dir):
+def _read_processed_image(q, phase):
     image, label = q[phase].dequeue()
-
     if phase == 'train':
         # Randomly flip the image horizontally.
         image = tf.image.random_flip_left_right(image)
@@ -162,9 +162,22 @@ def inputs(hypes, q, phase, data_dir):
         image = tf.image.random_contrast(image, lower=0.2, upper=1.8)
 
     image = tf.image.per_image_whitening(image)
+
+    return image, label
+
+
+def inputs(hypes, q, phase, data_dir):
+    num_threads = 4
+    example_list = [_read_processed_image(q, phase) for i in range(num_threads)]
+
+
     batch_size = hypes['solver']['batch_size']
-    image_batch, label_batch = tf.train.batch([image, label],
-                                              batch_size=batch_size)
+    minad = 10000
+    capacity = minad + 3 * batch_size
+    image_batch, label_batch = tf.train.shuffle_batch_join(example_list,
+                                                           batch_size=batch_size,
+                                                           min_after_dequeue=minad,
+                                                           capacity=capacity)
     return image_batch, label_batch
 
 
@@ -173,8 +186,10 @@ def main():
     with open('../hypes/medseg.json', 'r') as f:
         hypes = json.load(f)
 
-    q = create_queues(hypes)
-    image_batch, label_batch = inputs(q, 'train', 10)
+    q = {}
+    q['train'] = create_queues(hypes, 'train')
+    data_dir = "../DATA"
+    image_batch, label_batch = inputs(hypes, q, 'train', data_dir)
 
     with tf.Session() as sess:
         # Run the Op to initialize the variables.
@@ -183,7 +198,6 @@ def main():
         coord = tf.train.Coordinator()
         threads = tf.train.start_queue_runners(sess=sess, coord=coord)
 
-        data_dir = "../DATA"
 
         start_enqueuing_threads(hypes, q, sess, data_dir)
 
