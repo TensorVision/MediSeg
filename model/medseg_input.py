@@ -178,6 +178,11 @@ def inputs(hypes, q, phase, data_dir):
                                                            batch_size=batch_size,
                                                            min_after_dequeue=minad,
                                                            capacity=capacity)
+
+    # Display the training images in the visualizer.
+    tensor_name = image_batch.op.name
+    tf.image_summary(tensor_name + 'images', image_batch)
+    
     return image_batch, label_batch
 
 
