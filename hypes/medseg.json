@@ -1,0 +1,33 @@
+{
+  "model": {
+    "input_file": "model/medseg_input.py",
+    "arch_file" : "model/VGG8.py",
+    "solver_file" : "model/adam_optimizer.py"
+  },
+
+  "data": {
+    "train_file" : "train.txt",
+    "val_file" : "val.txt",
+    "num_examples_per_epoch_for_train" : 10000,
+    "num_examples_per_epoch_for_eval" : 1000,
+    "background_color" : [0],
+    "instrument_color" : [[70], [160]]
+  },
+ 
+  "arch": {
+    "num_classes" : 2,
+    "image_size" : 50,
+    "num_channels" : 3
+  },
+
+  "logging": {
+  },
+
+  "solver": {
+      "opt": null,
+      "batch_size": 64,
+      "epsilon": 0.00001, 
+      "learning_rate": 1e-4, 
+      "max_steps": 100000
+  }
+}
