@@ -14,5 +14,5 @@ Models for Medical Segmentation
 Install [TensorVision](https://github.com/TensorVision/TensorVision)
 
 ```
-$ tv-train
+$ tv-train --hypes hypes/medseg.json
 ```
