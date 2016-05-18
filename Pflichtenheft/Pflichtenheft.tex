@@ -1,0 +1,106 @@
+\documentclass[a4paper,12pt]{article}
+\usepackage{amssymb} % needed for math
+\usepackage{amsmath} % needed for math
+\usepackage[utf8]{inputenc} % this is needed for german umlauts
+\usepackage[ngerman]{babel} % this is needed for german umlauts
+\usepackage[T1]{fontenc}    % this is needed for correct output of umlauts in pdf
+
+\usepackage{booktabs}
+\usepackage{csquotes}
+\usepackage{cleveref}
+
+\usepackage[binary-units = true]{siunitx} % this package is for units!
+\DeclareSIUnit\px{px}
+
+% this is needed for forms and links within the text
+\usepackage{hyperref}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% Variablen                                 						 %
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\newcommand{\authorName}{Marvin Teichman, Martin Thoma}
+\newcommand{\projektName}{Praktikum Medizinische Informationssysteme}
+\newcommand{\tags}{\authorName, Pflichtenheft, KIT, Informatik}
+\newcommand{\glossarName}{Glossar}
+\title{\projektName~(Pflichtenheft)}
+\author{\authorName}
+\date{\today}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% PDF Meta information                                 				 %
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\hypersetup{
+  pdfauthor   = {\authorName},
+  pdfkeywords = {\tags},
+  pdftitle    = {\projektName~(Pflichtenheft)}
+}
+
+\crefformat{footnote}{#2\footnotemark[#1]#3}
+
+\begin{document}
+\maketitle
+
+\section{Projekttitel}
+
+Semantische Segmentierung von medizinischen Instrumenten mit Deep Learning
+Techniken
+
+
+\section{Fragestellung}
+Wie gut kann man im Kontext minimalinvasiver Operationen die Klassen
+\enquote{Hintergrund} und \enquote{Medizinisches Instrument}
+in Bildern automatisch segmentieren?
+
+Kann man zugleich eine hohe Segmentierungsqualität und geringe Latenz
+erreichen?
+
+
+\section{Stand der Forschung}
+CNNs werden seit einigen Jahren in allen Bereichen der Computer Vision
+eingesetzt: Traditionellerweise für Bildklassifikation, für Objektdetektion
+und auch für semantische Segmentierung.
+
+\cite{Moh2014} erreicht mit einem 7-schichtigem CNN für den
+KITTI-Datensatz~\cite{Fritsch2013ITSC} den zweiten Platz,
+\cite{alvarez2014large} erreicht auf MSRC-21 den ersten Platz mit Conditional
+Random Fields.
+
+Für weitere Techniken zur semantischen Segmentierung: \cite{thoma:2016}
+
+
+\section{Ziele}
+\subsection{Sollkriterien}
+\begin{itemize}
+    \item Es wird ein Programm erstellt, welches als Input ein Bild einer
+          Operation erhält und als Output ein Bild gleicher größe liefert,
+          welches die Segmentierung darstellt.
+    \item Das Programm liefert für ein $\SI{640}{\px} \times \SI{480}{\px}$
+          Bild innerhalb von spätestens $\SI{5}{\second}$ auf einem
+          ThinkPad T460p mit einer Nvidia 940MX-Grafikkarte eine Segmentierung.
+    \item Das Programm liefert ein Segmentierungsergebnis, welches
+          nach einem noch festzulegendem Maß (vgl. AP2) mindestens
+          eine relative Verbesserung von $\SI{10}{\percent}$ bzgl. dem
+          Basis-Segmentierer (vgl. AP3) bringt. Diese Segmentierungsqualität
+          wird über eine Testmenge berechnet.\footnote{Also: $\frac{Q_\text{Best} - Q_\text{Basis}}{1-Q_\text{Basis}} \geq 0.1$ mit einem Maß $Q \in [0, 1]$}
+    \item Es wird für mindestens 5~Modelle die Qualität berechnet und mit
+          einander verglichen.
+\end{itemize}
+
+\subsection{Wunschkriterien}
+\begin{itemize}
+    \item Das Programm liefert für ein $\SI{640}{\px} \times \SI{480}{\px}$
+          Bild innerhalb von spätestens $\SI{0.06}{\second}$ auf einem
+          ThinkPad T460p mit einer Nvidia 940MX-Grafikkarte ein Ergebnis.
+    \item Das Programm liefert ein Segmentierungsergebnis, welches nach dem in
+          AP2 festgelegten Maß um mindestens $\SI{20}{\percent}$ relativ besser
+          ist.
+\end{itemize}
+\clearpage
+
+\input{APs}
+
+\clearpage
+
+\bibliographystyle{IEEEtranSA}
+\bibliography{literatur}
+\end{document}

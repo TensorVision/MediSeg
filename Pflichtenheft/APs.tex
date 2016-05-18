@@ -1,0 +1,101 @@
+\section{Arbeitspakete}
+\subsection{AP1: Input Pipeline}
+
+Bauen eines Input Producers, welcher nebenläufig auf der CPU Daten einließt und
+verschiedene Standardtechniken zur Data Augmention anwendet. Die Daten werden
+bereits als Batch zusammengefasst und auf die Grafikkarte geladen. Verwaltet
+wird das ganze von einer nebenläufigen Queue, welche neue Daten anfordert, wenn
+die Anzahl der bereitgestellten Batches einen Schwellwert unterschreitet.
+
+\subsection{AP2: Daten, Test- und Evaluierungsskripte}
+Viele der folgenden Arbeitspakete beinhalten das Überprüfen verschiedener
+Modelle auf zwei Kriterien:
+
+\begin{itemize}
+    \item \textbf{Geschwindigkeit}: Wie schnell wird ein einzelnes Bild
+          segmentiert?
+    \item \textbf{Qualität}: Wie brauchbar ist das Ergebnis?
+\end{itemize}
+
+Dabei wird in diesem Arbeitspaket ein Test-Datensatz festgelegt, welcher
+konsistent für alle Modelle ist. Dieser wird niemals zum Training verwendet.
+Die Qualität wird konsistent für alle Modelle berechnet werden. Das Maß der
+Qualität ist noch festzulegen.
+
+
+Die Geschwindigkeit ist die reine Zeit zum Segmentieren. Sie beinhaltet weder
+die Zeit zum Laden des Modells noch zum schreiben des Ergebnisses auf die
+Festplatte.
+
+Es wird angegeben, wie gut die Qualität ist, wenn man einfach die häufigste Klasse schätzt. Damit wird ein Vergleich geschaffen, wie stark
+die Verbesserung der verschiedenen Segmnetierer ist.
+
+
+\subsection{AP3: Basic Segmenter}
+Diese Modelle sollen eine Grundlage für die Beurteilung der Qualität und des
+Wertes von weiteren Verbesserungen bieten.
+
+\begin{itemize}
+    \item Modell~301: Klassifiziere Pixel rein anhand der Farbe.
+    \item Modell~302: Klassifiziere Pixel rein anhand der Farbe und Position.
+    \item Modell~303: Nutze die Klassifikation der anderen Pixel um eine
+          schlüssige Gesamtsegmentierung zu erhalten. Dafür können z.B.
+          morphologische Operationen eingesetzt werden.
+\end{itemize}
+
+\clearpage
+\subsection{AP4: Shallow CNN Segmenter}
+\subsubsection{AP 4.1: SST-Modell}
+Modell~401: Trainieren eines Segmentierers, welcher den Sliding-Window-Ansatz
+benutzt und nur den Pixel im Zentrum klassifiziert. Es wird die folgende
+Topologie haben:
+
+\begin{table}[h!]
+    \centering
+    \begin{tabular}{lll}
+    \toprule
+    \textbf{Layer} & \textbf{Type} & \textbf{Shape} \\\midrule
+    0     & Input       & 51\\
+    1     & Convolution & 10 filter each $5\times 5$ \\
+    2     & Convolution & 10 filter each $5\times 5$ \\
+    3     & Pooling     & $2\times 2$ \\
+    4     & Output      & 1 \\ \bottomrule
+    \end{tabular}
+\end{table}
+
+Als Trainingsdaten werden $51 \times 51$-Patches mit einem Stride von $s=10$
+aus den verfügbaren Bildern deterministisch ausgeschnitten.
+
+Zur Klassifikation der Randpixel wird 0-Padding verwendet.
+
+Diese Einstellungen wurden so gewählt, da sie bereits in~\cite{bittel2015pixel}
+vernünftige Ergebnisse für eine semantische Segmentierungsaufgabe geliefert
+haben.
+
+\subsubsection{AP 4.2: Weitere Patch-Segmenter}
+Trainieren von Segmentierern, welche den Sliding-Window-Ansatz benutzt und
+mehr Pixel als nur das Zentrum klassifiziert. Variationen sind durch die
+Window-Größe des Inputs und den Stride
+(welcher damit die Ausgabe-Größe bestimmt) gegeben.
+
+\clearpage
+\subsection{AP6: FCN-Architectures}
+Modell~6XX: Experimentiere mit FCN-Architekturen. Diese wurden
+in~\cite{long2015fully} vorgestellt und haben für PASCAL VOC sehr gute
+Segmentierungsergebnisse geliefert.
+
+
+\subsection{AP7: Fine-Tuning}
+Modell~7XX: Experimentiere mit Fine-Tuning Ansätzen. Aufgrund der geringen
+Anzahl an verfügbaren Bildern zum trainieren könnte es sinnvoll sein ein
+bereits auf Bildern trainiertes Netz zu nutzen und nur die letzten Schichten
+des Netzwerks auf den medizinischen Daten anzupassen. In den ersten Schichten
+werden typischerweise allgemeine Features trainiert, wohingegen die letzten
+Schichten sehr problemspezifisch sind.
+
+
+\subsection{AP8: Evaluation}
+Vergleich der Ergebnisse und Schreiben des Abschluss-Papers. Das Paper wird
+auf Englisch geschrieben und wird mindestens 3~Seiten lang sein. Es werden
+die Ergebnisse der vorherigen Arbeitspakete vorgestellt, verglichen und
+bewertet.

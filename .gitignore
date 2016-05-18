@@ -63,3 +63,8 @@ target/
 
 #Ipython Notebook
 .ipynb_checkpoints
+
+# Latex
+*.aux
+*.out
+*.bbl
