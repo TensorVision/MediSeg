@@ -1,0 +1,18 @@
+{
+  "data": {
+      "train": "../trainfiles.json",
+      "test": "../testfiles.json"
+  },
+  "classes": {
+      "background": {"colors": [0]},
+      "medical instrument": {"colors": "default"}
+  },
+  "training": {
+      "stride": 20,
+      "batchsize": 100
+  },
+  "segmenter": {
+      "serialized_model_path": "sliding-window4.pickle",
+      "network_path": "sliding-window4.py"
+  }
+}

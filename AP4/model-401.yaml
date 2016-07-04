@@ -1,0 +1,49 @@
+class_name: Sequential
+config:
+- class_name: Convolution2D
+  config:
+    W_constraint: null
+    W_regularizer: null
+    activation: relu
+    activity_regularizer: null
+    b_constraint: null
+    b_regularizer: null
+    batch_input_shape: !!python/tuple [null, 3, 8, 8]
+    bias: true
+    border_mode: same
+    dim_ordering: th
+    init: glorot_normal
+    input_dtype: float32
+    name: convolution2d_1
+    nb_col: 5
+    nb_filter: 10
+    nb_row: 5
+    subsample: !!python/tuple [1, 1]
+    trainable: true
+- class_name: MaxPooling2D
+  config:
+    border_mode: valid
+    dim_ordering: th
+    name: maxpooling2d_1
+    pool_size: &id001 !!python/tuple [3, 3]
+    strides: *id001
+    trainable: true
+- class_name: Flatten
+  config: {name: flatten_1, trainable: true}
+- class_name: Dense
+  config: {W_constraint: null, W_regularizer: null, activation: linear, activity_regularizer: null,
+    b_constraint: null, b_regularizer: null, bias: true, init: glorot_normal, input_dim: null,
+    name: dense_1, output_dim: 42, trainable: true}
+- class_name: Dense
+  config: {W_constraint: null, W_regularizer: null, activation: linear, activity_regularizer: null,
+    b_constraint: null, b_regularizer: null, bias: true, init: glorot_normal, input_dim: null,
+    name: dense_2, output_dim: 800, trainable: true}
+- class_name: Dense
+  config: {W_constraint: null, W_regularizer: null, activation: sigmoid, activity_regularizer: null,
+    b_constraint: null, b_regularizer: null, bias: true, init: glorot_normal, input_dim: null,
+    name: dense_3, output_dim: 1, trainable: true}
+- class_name: Reshape
+  config:
+    name: reshape_1
+    target_shape: !!python/tuple [1, 1]
+    trainable: true

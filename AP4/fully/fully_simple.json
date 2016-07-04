@@ -1,0 +1,19 @@
+{
+  "data": {
+      "train": "../../DATA/trainfiles.json",
+      "test": "../../DATA/testfiles.json"
+  },
+  "classes": {
+      "background": {"colors": [0]},
+      "medical instrument": {"colors": "default"}
+  },
+  "training": {
+      "stride": 20,
+      "batchsize": 100
+  },
+  "segmenter": {
+      "serialized_model_path": "fully_simple.pickle",
+      "network_path": "fully_simple.py",
+      "stride": 20
+  }
+}

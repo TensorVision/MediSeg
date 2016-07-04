@@ -1,0 +1,40 @@
+{
+  "model": {
+    "name": "model-401",
+    "input_file": "model/patch_input.py",
+    "arch_file" : "model/VGG8.py",
+    "solver_file" : "model/adam_optimizer.py"
+  },
+
+  "data": {
+    "train_file" : "train.txt",
+    "val_file" : "val.txt",
+    "num_examples_per_epoch_for_train" : 10000,
+    "num_examples_per_epoch_for_eval" : 1000,
+    "background_color" : [0],
+    "instrument_color" : [[70], [160]]
+  },
+
+  "arch": {
+    "num_classes" : 2,
+    "num_channels" : 3,
+    "patch_size" : 8,
+    "stride": 1
+  },
+
+  "logging": {
+  },
+
+  "solver": {
+      "optimizer": "rmsprop",
+      "loss": "mse",
+      "_samples_per_epoch_comment": "(1 sample / px^2) * 640px * 480px * 3 OPs * 40 imgs/OP",
+      "epochs": 1,
+      "samples_per_epoch": 36864000,
+      "batch_size": 128,
+      "epsilon": 0.00001,
+      "learning_rate": 1e-4,
+      "max_steps": 1000,
+      "minad": 1000
+  }
+}

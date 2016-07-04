@@ -1,0 +1,22 @@
+{
+  "model": {
+    "name": "model-305"
+  },
+
+  "model_nr": 5,
+
+  "solver": {
+      "lr": 0.1,
+      "momentum": 0.9,
+      "decay": 1e-6,
+      "epochs": 2,
+      "_samples_per_epoch_comment": "(1 sample / px^2) * 640px * 480px * 3 OPs * 40 imgs/OP",
+      "samples_per_epoch": 36864000,
+      "batch_size": 128
+  },
+
+  "data": {
+    "train": "../DATA/trainfiles.json",
+    "test": "../DATA/testfiles.json"
+  }
+}

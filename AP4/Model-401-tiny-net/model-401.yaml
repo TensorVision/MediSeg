@@ -1,0 +1,35 @@
+class_name: Sequential
+config:
+- class_name: Convolution2D
+  config:
+    W_constraint: null
+    W_regularizer: null
+    activation: linear
+    activity_regularizer: null
+    b_constraint: null
+    b_regularizer: null
+    batch_input_shape: !!python/tuple [null, 3, 8, 8]
+    bias: true
+    border_mode: valid
+    dim_ordering: th
+    init: glorot_uniform
+    input_dtype: float32
+    name: convolution2d_1
+    nb_col: 3
+    nb_filter: 64
+    nb_row: 3
+    subsample: !!python/tuple [1, 1]
+    trainable: true
+- class_name: Activation
+  config: {activation: sigmoid, name: activation_1, trainable: true}
+- class_name: Flatten
+  config: {name: flatten_1, trainable: true}
+- class_name: Dense
+  config: {W_constraint: null, W_regularizer: null, activation: sigmoid, activity_regularizer: null,
+    b_constraint: null, b_regularizer: null, bias: true, init: glorot_uniform, input_dim: null,
+    name: dense_1, output_dim: 1, trainable: true}
+- class_name: Reshape
+  config:
+    name: reshape_1
+    target_shape: !!python/tuple [1, 1]
+    trainable: true

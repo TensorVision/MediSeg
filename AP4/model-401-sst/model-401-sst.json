@@ -1,0 +1,28 @@
+{
+  "data": {
+      "train": "../../DATA/trainfiles.json",
+      "test": "../../DATA/testfiles.json",
+      "serialization": "mediseg.pickle"
+  },
+  "classes": [
+      {"name": "road",
+       "colors": [[255, 255, 255]],
+       "output": [0, 255, 0, 127]},
+      {"name": "background",
+       "colors": ["default", [0, 0, 0]],
+       "output": [255, 0, 0, 50]}
+  ],
+  "training": {
+      "stride": 3,
+      "batchsize": 100,
+      "make_equal": true
+  },
+  "segmenter": {
+      "serialized_model_path": "model-401-sst.pickle",
+      "network_path": "sliding_window.py",
+      "stride": 1,
+      "patch_size": 9,
+      "flatten": false,
+      "fully": false
+  }
+}

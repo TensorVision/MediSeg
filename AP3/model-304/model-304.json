@@ -1,0 +1,18 @@
+{
+  "model": {
+    "name": "model-304"
+  },
+
+  "model_nr": 4,
+
+  "solver": {
+      "epochs": 2,
+      "samples_per_epoch": 36864000,
+      "batch_size": 128
+  },
+
+  "data": {
+    "train": "../DATA/trainfiles.json",
+    "test": "../DATA/testfiles.json"
+  }
+}

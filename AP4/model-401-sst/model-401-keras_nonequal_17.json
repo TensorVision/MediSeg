@@ -1,0 +1,29 @@
+{
+  "data": {
+      "train": "../../DATA/trainfiles.json",
+      "test": "../../DATA/testfiles.json",
+      "serialization": "mediseg.pickle"
+  },
+  "classes": [
+      {"name": "road",
+       "colors": [[255, 255, 255]],
+       "output": [0, 255, 0, 127]},
+      {"name": "background",
+       "colors": ["default", [0, 0, 0]],
+       "output": [255, 0, 0, 0]}
+  ],
+  "training": {
+      "stride": 10,
+      "batchsize": 100,
+      "make_equal": false,
+      "one_hot_encoding": true
+  },
+  "segmenter": {
+      "serialized_model_path": "model-401-keras_nonequal17.pickle",
+      "network_path": "sliding_window_keras.py",
+      "stride": 1,
+      "patch_size": 17,
+      "flatten": false,
+      "fully": false
+  }
+}

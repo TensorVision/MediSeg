@@ -1,0 +1,16 @@
+{
+  "model": {
+    "name": "svm"
+  },
+
+  "model_nr": 5,
+
+  "solver": {
+
+  },
+
+  "data": {
+    "train": "../DATA/trainfiles.json",
+    "test": "../DATA/testfiles.json"
+  }
+}

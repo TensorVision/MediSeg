@@ -68,3 +68,12 @@ target/
 *.aux
 *.out
 *.bbl
+
+# Python
+*.npy
+*.pkl
+*.pickle
+
+# Sublime
+*.sublime-workspace
+*.sublime-project

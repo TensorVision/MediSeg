@@ -1,0 +1,21 @@
+{
+  "data": {
+      "train": "/media/moose/Big Data Drive/data_road/trainfiles.json",
+      "test": "/media/moose/Big Data Drive/data_road/testfiles.json"
+  },
+  "classes": [
+      {"name": "road",
+       "colors": [[255, 0, 255]]},
+      {"name": "background",
+       "colors": ["default", [255, 0, 0]]}
+  ],
+  "training": {
+      "stride": 20,
+      "batchsize": 100
+  },
+  "segmenter": {
+      "serialized_model_path": "fully_simple_road.pickle",
+      "network_path": "fully_simple.py",
+      "stride": 10
+  }
+}
