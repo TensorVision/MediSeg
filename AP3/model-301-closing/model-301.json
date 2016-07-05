@@ -1,13 +1,12 @@
 {
   "model": {
-    "name": "model-303"
+    "name": "model-301-closing"
   },
 
-  "model_nr": 3,
+  "model_nr": "1.1",
 
   "solver": {
       "epochs": 1,
-      "_samples_per_epoch_comment": "(1 sample / px^2) * 640px * 480px * 4 OPs * 40 imgs/OP",
       "samples_per_epoch": 49152000,
       "batch_size": 512
   },

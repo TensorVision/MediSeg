@@ -42,7 +42,7 @@ def get_features(x, y, image, model_nr=2):
     """Get features at position (x, y) from image."""
     height, width, _ = image.shape
     p = get_pos_colors(image, x, y)
-    if model_nr in [1]:
+    if model_nr in [1, "1.1"]:
         return p
     elif model_nr in [2, 3]:
         return (p[0], p[1], p[2], x, y)
@@ -61,6 +61,7 @@ def get_features(x, y, image, model_nr=2):
                 bottom[0], bottom[1], bottom[2])
     else:
         print("model_nr '%s' unknown" % str(model_nr))
+        sys.exit(-1)
 
 
 def get_pos_colors(image, x, y):
@@ -93,8 +94,6 @@ def inputs(hypes, _, phase, data_dir):
     x_files, y_files = sklearn.utils.shuffle(x_files,
                                              y_files,
                                              random_state=0)
-    # x_files = x_files[:40]  # reducing data
-    # y_files = y_files[:40]  # reducing data
 
     xs, ys = [], []
     for x, y in zip(x_files, y_files):
@@ -153,7 +152,8 @@ def generate_training_data(hypes, x_files, y_files):
             i = (i + 1) % len(x_files)
             xs = np.concatenate((xs, xs_tmp), axis=0)
             ys = np.concatenate((ys, ys_tmp), axis=0)
-            # xs, ys = reduce_data_equal(xs, ys)
+            if hypes['training']['make_equal']:
+                xs, ys = reduce_data_equal(xs, ys)
 
         # xs, ys = shuffle_in_unison_inplace(xs, ys)
         # print("sum(ys)=%i / %i" % (np.sum(ys), len(ys) - np.sum(ys)))
@@ -226,8 +226,8 @@ def get_segmentation(hypes, image_path, model):
         for y in range(height):
             segmentation[y][x] = classes[i]
             i += 1
-    if hypes['model_nr'] == 3:
-        segmentation = morphological_operations(segmentation)  # Model 3
+    if hypes['model_nr'] in [3, "1.1"]:
+        segmentation = morphological_operations(segmentation)
     # Set all labels which are 1 to 0 and vice versa.
     segmentation = np.invert(segmentation.astype(bool)).astype(int)
     # segmentation = superpixel_majority_vote(image, segmentation)
@@ -293,6 +293,10 @@ def main(hypes_file, data_dir, override):
     """Orchestrate."""
     with open(hypes_file, 'r') as f:
         hypes = json.load(f)
+    if 'training' not in hypes:
+        hypes['training'] = {}
+    if 'make_equal' not in hypes['training']:
+        hypes['training']['make_equal'] = False
 
     base = os.path.dirname(hypes_file)
     model_file_path = os.path.join(base, '%s.yaml' % hypes['model']['name'])
