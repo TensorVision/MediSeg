@@ -45,7 +45,7 @@ def main(data_path, store_txt):
                 outfile.write("%s %s\n" % (data['raw'], data['mask']))
 
         with open('val.txt', 'w') as outfile:
-            for data in train_data:
+            for data in test_data:
                 outfile.write("%s %s\n" % (data['raw'], data['mask']))
 
 
