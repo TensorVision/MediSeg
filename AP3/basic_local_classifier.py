@@ -4,9 +4,7 @@
 """A basic classifier which uses only local features."""
 
 import os.path
-import PIL.ImageEnhance
 from PIL import Image
-import numpy
 import scipy.misc
 import scipy.ndimage
 
@@ -29,6 +27,8 @@ from keras.models import model_from_yaml
 from keras.preprocessing.image import img_to_array
 
 from skimage.segmentation import quickshift, slic
+
+from tensorvision.utils import load_segmentation_mask
 
 import sys
 sys.path.append(
@@ -99,24 +99,23 @@ def inputs(hypes, _, phase, data_dir):
     for x, y in zip(x_files, y_files):
         logging.info("Read '%s' for data...", x)
         image = get_image(x, 'RGB')
-        label = get_image(y, 'L')
-        label = normalize_labels(label)
+        label = load_segmentation_mask(hypes, y)
         im = Image.open(x, 'r')
         width, height = im.size
         for x in range(width):
             for y in range(height):
                 image_val = get_features(x, y, image, hypes['model_nr'])
-                label_val = (label[y][x][0] == 0)  # only 0 is background
+                label_val = label[y][x]
 
                 xs.append(image_val)
                 ys.append(label_val)
-    return xs, numpy.array(ys, dtype=int)
+    return xs, np.array(ys, dtype=int)
 
 
 def shuffle_in_unison_inplace(a, b):
     """Shuffle both, a and b, the same way."""
     assert len(a) == len(b)
-    p = numpy.random.permutation(len(a))
+    p = np.random.permutation(len(a))
     return a[p], b[p]
 
 
@@ -169,18 +168,17 @@ def get_traindata_single_file(hypes, x, y):
     xs, ys = [], []
     logging.info("Read '%s' for data...", x)
     image = get_image(x, 'RGB')
-    label = get_image(y, 'L')
-    label = normalize_labels(label)
+    label = load_segmentation_mask(hypes, y)
     im = Image.open(x, 'r')
     width, height = im.size
     for x in range(width):
         for y in range(height):
             image_val = get_features(x, y, image, hypes['model_nr'])
-            label_val = (label[y][x][0] == 0)  # only 0 is background
+            label_val = label[y][x]
 
             xs.append(image_val)
             ys.append(label_val)
-    return numpy.array(xs), numpy.array(ys, dtype=int)
+    return np.array(xs), np.array(ys, dtype=int)
 
 
 def get_segmentation(hypes, image_path, model):
@@ -212,24 +210,25 @@ def get_segmentation(hypes, image_path, model):
 
     im = Image.open(image_path, 'r')
     width, height = im.size
-    segmentation = numpy.zeros((height, width), dtype=int)
+    segmentation = np.zeros((height, width), dtype=int)
 
     x_test = []
     for x in range(width):
         for y in range(height):
             x_test.append(get_features(x, y, image, hypes['model_nr']))
 
-    classes = model.predict_classes(numpy.array(x_test, dtype=int),
+    classes = model.predict_classes(np.array(x_test, dtype=int),
                                     batch_size=1024)
     i = 0
     for x in range(width):
         for y in range(height):
             segmentation[y][x] = classes[i]
             i += 1
-    if hypes['model_nr'] in [3, "1.1"]:
+    if hypes['model_nr'] == [3, "1.1"]:
         segmentation = morphological_operations(segmentation)
-    # Set all labels which are 1 to 0 and vice versa.
-    segmentation = np.invert(segmentation.astype(bool)).astype(int)
+    if hypes['segmenter']['invert']:
+        # Set all labels which are 1 to 0 and vice versa.
+        segmentation = np.invert(segmentation.astype(bool)).astype(int)
     # segmentation = superpixel_majority_vote(image, segmentation)
     return segmentation
 
@@ -269,26 +268,6 @@ def morphological_operations(segmentation):
     return segmentation
 
 
-def normalize_labels(segmentation):
-    """Set all labels which are not 0 to 1."""
-    return segmentation.astype(bool).astype(int)
-
-
-def load_label_seg(yfile):
-    """
-    Load the segmentation from a file.
-
-    Parameters
-    ----------
-    yfile : str
-        Path to a segmentation mask image.
-    """
-    correct_seg = get_image(yfile, 'L')
-    correct_seg = normalize_labels(correct_seg)
-    correct_seg = np.squeeze(correct_seg)
-    return correct_seg
-
-
 def main(hypes_file, data_dir, override):
     """Orchestrate."""
     with open(hypes_file, 'r') as f:
@@ -303,10 +282,6 @@ def main(hypes_file, data_dir, override):
     model_file_path = os.path.abspath(model_file_path)
     weights_file_path = os.path.join(base, '%s.hdf5' % hypes['model']['name'])
     weights_file_path = os.path.abspath(weights_file_path)
-
-    color_changes = {0: (0, 0, 0, 0),
-                     1: (0, 255, 0, 127),
-                     'default': (0, 0, 0, 0)}
 
     if not os.path.isfile(model_file_path) or override:
         if not os.path.isfile(model_file_path):
@@ -352,7 +327,6 @@ def main(hypes_file, data_dir, override):
                                 samples_per_epoch=sep,
                                 nb_epoch=hypes['solver']['epochs'],
                                 verbose=1,
-                                # callbacks=[callb],
                                 validation_data=(x_train, y_train))
         else:
             logging.info("Fit with .fit")
@@ -375,10 +349,9 @@ def main(hypes_file, data_dir, override):
                          data_dir,
                          model,
                          elements=[0, 1],
-                         load_label_seg=load_label_seg,
-                         color_changes=color_changes,
                          get_segmentation=get_segmentation)
     else:
+        logging.info("## Found '%s'.", model_file_path)
         with open(model_file_path) as f:
             yaml_string = f.read()
         model = model_from_yaml(yaml_string)
@@ -390,8 +363,6 @@ def main(hypes_file, data_dir, override):
                          data_dir,
                          model,
                          elements=[0, 1],
-                         load_label_seg=load_label_seg,
-                         color_changes=color_changes,
                          get_segmentation=get_segmentation)
 
 
@@ -417,8 +388,8 @@ def reduce_data_equal(x_train, y_train, max_per_class=None):
             x_train_n.append(x)
             y_train_n.append(y)
             false_count += 1
-    x_train = numpy.array(x_train_n)
-    y_train = numpy.array(y_train_n)
+    x_train = np.array(x_train_n)
+    y_train = np.array(y_train_n)
     return x_train, y_train
 
 

@@ -1,0 +1,90 @@
+\documentclass[technote,a4paper,leqno]{IEEEtran}
+\pdfoutput=1
+
+% packages
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage{amsmath,amssymb}
+\usepackage[pdftex]{graphicx}
+\usepackage{caption}
+\usepackage[hang]{subfigure}
+\captionsetup{format=hang}
+\usepackage{url}
+\usepackage[super]{nth}
+\usepackage[breaklinks]{hyperref}
+\def\UrlBreaks{\do\/\do-}
+\usepackage[absolute,overlay]{textpos}
+\usepackage{tikz}
+\usepackage{csquotes}
+\usepackage{booktabs}  % for \toprule, \midrule and \bottomrule
+\usepackage{pbox}
+\usepackage{braket} % needed for nice printing of sets
+\usepackage[english]{babel}
+\usepackage{mathtools}
+\usepackage{xspace}
+\usepackage[inner=2.5cm,outer=2.5cm,top=2.5cm,bottom=2cm,includeheadfoot]{geometry}
+% \usepackage{glossaries}
+% \loadglsentries[main]{glossary}
+% \makeglossaries
+
+\usepackage[nameinlink, noabbrev,capitalise]{cleveref} % has to be after hyperref, nthe l.137 ...eam attr{/N 4}  file{sRGBIEC1966-2.1.icmorem, amsthm
+
+
+% List stuff
+\usepackage{enumitem}
+\crefname{problemnr}{\textup{problem}}{\textup{problems}}
+\newlist{problemnr}{enumerate}{1}
+\setlist[problemnr]{label={P\arabic*}, ref=P\arabic*}
+\crefalias{problemnri}{problemnr}
+
+\newcommand*{\eg}{e.g.\@\xspace}
+
+
+\usepackage[binary-units,group-separator={,}]{siunitx}
+\sisetup{per-mode=fraction,
+         binary-units=true,
+         group-separator = {\,},
+         range-phrase=-}
+\DeclareSIUnit\pixel{px}
+\usepackage{microtype}
+
+\DeclareGraphicsExtensions{.jpg}
+\DeclareMathOperator{\sgn}{sgn}
+\DeclareMathOperator*{\minimize}{minimize}
+\DeclareMathOperator*{\maximize}{maximize}
+
+\newcommand\independent{\protect\mathpalette{\protect\independenT}{\perp}}
+\def\independenT#1#2{\mathrel{\rlap{$#1#2$}\mkern2mu{#1#2}}}
+
+\newcommand{\titleboth}{A Survey of Semantic Segmentation}
+\title{\titleboth}
+\author{%
+\makebox[.4\linewidth]{Marvin Teichmann\thanks{\IEEEauthorrefmark{1} These authors contributed equally to this work.}\IEEEauthorrefmark{1}}% ORCID: http://orcid.org/0000-0002-9178-2970
+\and \makebox[.4\linewidth]{Martin Thoma\IEEEauthorrefmark{1}}} % ORCID: http://orcid.org/0000-0002-6517-1690
+
+\hypersetup{
+    pdfauthor   = {Martin Thoma},
+    pdfkeywords = {semantic segmentation, pixelwise classification, pixel-level classification},
+    pdfsubject  = {Segmentation},
+    pdftitle    = {\titleboth},
+}
+
+\begin{document}
+\maketitle
+\input{00-abstract.tex}
+
+\input{01-introduction}
+\input{02-related-work}
+\input{03-0-experiments}
+\input{04-discussion}
+\input{05-acknowledgement}
+
+\newpage
+\bibliography{literature}
+\bibliographystyle{IEEEtranSA}\vfill
+% \columnbreak
+% \printglossaries%
+
+\input{appendix}
+
+\end{document}

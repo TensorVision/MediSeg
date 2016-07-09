@@ -6,10 +6,12 @@ import scipy
 import logging
 import time
 import os.path
+import struct
 
 from tensorvision.analyze import merge_cms, get_accuracy, get_mean_accuracy
 from tensorvision.analyze import get_mean_iou, get_frequency_weighted_iou
 from tensorvision.analyze import get_confusion_matrix
+from tensorvision.utils import load_segmentation_mask
 from tensorvision.utils import overlay_segmentation
 
 
@@ -19,8 +21,6 @@ def evaluate(hypes,
              model,
              elements,
              get_segmentation,
-             load_label_seg,
-             color_changes,
              verbose=True):
     """
     Analyze how well a model does on given data.
@@ -40,6 +40,9 @@ def evaluate(hypes,
     get_segmentation : function
         Takes a string and a model the model as input and returns a numpy
         array. The string is the path to an image file.
+    load_label_seg : function
+        Takes a path as a string and returns a segmentation mask as a numpy
+        array.
     verbose : bool
         Print messages when in verbose mode.
     """
@@ -60,8 +63,9 @@ def evaluate(hypes,
         segmentation = get_segmentation(hypes, xfile, model)
         t1 = time.time()
         times.append(t1 - t0)
-        correct_seg = load_label_seg(yfile)
+        correct_seg = load_segmentation_mask(hypes, yfile)
         cm_tmp = get_confusion_matrix(correct_seg, segmentation, elements)
+        color_changes = get_color_changes_dict(hypes)
         gen_img_and_overlay(xfile, segmentation, out_dir, color_changes, i)
         cm = merge_cms(cm, cm_tmp)
         if verbose:
@@ -105,6 +109,38 @@ def gen_img_and_overlay(source_file, segmentation, out_dir, color_changes, i):
     overlayed = overlay_segmentation(input_image, segmentation, color_changes)
     scipy.misc.imsave(overlay_path, overlayed)
     logging.info("Created output for '%s'", source_file)
+
+
+def get_color_changes_dict(hypes):
+    """
+    Get a dict which maps class indices to colors.
+
+    It has the class index as key and the color (r, g, b, a) as value.
+
+    Parameters
+    ----------
+    hypes : dict
+
+    Returns
+    -------
+    dict
+    """
+    color_changes = {}
+    for i, cl in enumerate(hypes['classes']):
+        color_changes[i] = get_color_tuple(cl['output'])
+    return color_changes
+
+
+def get_color_tuple(color):
+    """Get a (r, g, b, a) tuple as color."""
+    if isinstance(color, tuple):
+        return color
+    if isinstance(color, basestring):
+        if color.startswith('#'):
+            color = color[1:]
+            color = struct.unpack('BBBB', color.decode('hex'))
+            return color
+    raise Exception("Wrong color code %s." % str(color))
 
 
 def show_metrics(cm, indentation=0):

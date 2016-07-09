@@ -11,8 +11,21 @@
       "batch_size": 512
   },
 
+  "segmenter": {
+      "invert": true
+  },
+
   "data": {
     "train": "../DATA/trainfiles.json",
     "test": "../DATA/testfiles.json"
-  }
+  },
+
+  "classes": [
+    {"name": "background",
+     "colors": ["#000000"],
+     "output": "#ff000000"},
+    {"name": "instrument",
+     "colors": ["#464646", "#a0a0a0", "#ffffff"],
+     "output": "#00ff007f"}
+  ]
 }

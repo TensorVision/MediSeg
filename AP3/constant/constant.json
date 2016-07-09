@@ -1,18 +1,6 @@
 {
   "model": {
-    "name": "model-301"
-  },
-
-  "model_nr": 1,
-
-  "solver": {
-      "epochs": 1,
-      "samples_per_epoch": 49152000,
-      "batch_size": 512
-  },
-
-  "segmenter": {
-      "invert": false
+    "name": "ap3-constant"
   },
 
   "data": {
@@ -23,9 +11,9 @@
   "classes": [
     {"name": "background",
      "colors": ["#000000"],
-     "output": "#ff000000"},
+     "output": "#00ff007f"},
     {"name": "instrument",
      "colors": ["#464646", "#a0a0a0", "#ffffff"],
-     "output": "#00ff007f"}
+     "output": "#ff00007f"}
   ]
 }

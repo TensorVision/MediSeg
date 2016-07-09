@@ -1,0 +1,49 @@
+%!TEX root = vorlage.tex
+
+\clearpage\onecolumn
+\begin{appendices}
+\section{Tables}
+
+\begin{table}[ht]
+    \centering
+    \begin{tabular}{llrr}
+    \toprule
+    ~                & ~ & \multicolumn{2}{c}{\textbf{Predicted class}}\\
+    ~                & ~ & \multicolumn{1}{c}{\textbf{0}} & \multicolumn{1}{c}{\textbf{1}} \\% \cmidrule{3-4}
+    \textbf{Actual}  & \multicolumn{1}{c}{\textbf{0}} & \num{38640407}  & \num{2654875} \\
+    \textbf{class}   & \multicolumn{1}{c}{\textbf{1}} &   \num{408816}  & \num{1303902} \\ \bottomrule
+    \end{tabular}
+    \caption{Confusion matrix of a model trained soley on pixel colors.
+             Class~0 is background, class~1 is medical instruments.}
+    \label{table:cm-model-301}
+\end{table}
+
+\begin{table}[ht]
+    \centering
+    \begin{tabular}{llrr}
+    \toprule
+    ~                & ~ & \multicolumn{2}{c}{\textbf{Predicted class}}\\
+    ~                & ~ & \multicolumn{1}{c}{\textbf{0}} & \multicolumn{1}{c}{\textbf{1}} \\% \cmidrule{3-4}
+    \textbf{Actual}  & \multicolumn{1}{c}{\textbf{0}} & \num{38989042}  & \num{3780484} \\
+    \textbf{class}   & \multicolumn{1}{c}{\textbf{1}} &    \num{60181}  &  \num{178293} \\ \bottomrule
+    \end{tabular}
+    \caption{Confusion matrix of a model trained soley on pixel colors. Additionally,
+             a morphological closing operation with $\SI{3}{\pixel}$ was applied.
+             Class~0 is background, class~1 is medical instruments.}
+    \label{table:cm-model-301-closing}
+\end{table}
+
+\begin{table}[ht]
+    \centering
+    \begin{tabular}{llrr}
+    \toprule
+    ~                & ~ & \multicolumn{2}{c}{\textbf{Predicted class}}\\
+    ~                & ~ & \multicolumn{1}{c}{\textbf{0}} & \multicolumn{1}{c}{\textbf{1}} \\% \cmidrule{3-4}
+    \textbf{Actual}  & \multicolumn{1}{c}{\textbf{0}} & \num{38541570}  & \num{2284099} \\
+    \textbf{class}   & \multicolumn{1}{c}{\textbf{1}} &   \num{507653}  & \num{1674678} \\ \bottomrule
+    \end{tabular}
+    \caption{Confusion matrix of a model trained on pixel colors and the pixels coordinates. Additionally, a morphological closing operation was applied.
+             Class~0 is background, class~1 is medical instruments.}
+    \label{table:cm-model-303}
+\end{table}
+\end{appendices}
