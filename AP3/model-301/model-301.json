@@ -12,7 +12,7 @@
   },
 
   "segmenter": {
-      "invert": false
+      "invert": true
   },
 
   "data": {
