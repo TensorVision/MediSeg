@@ -4,7 +4,8 @@ street segmentation paper (SST).
 Execute it with
 
 ```bash
-$ time ./sst_segmenter.py --data ../DATA
+$ ./sst_segmenter.py --out ../DATA/out --hypes model-401-sst/model-401-keras_nonequal_51.json
+$ ./sst_segmenter.py --out ../DATA/out --hypes sst-sliding-window-tiny/sliding-window-tiny.json
 ```
 
 ## Results

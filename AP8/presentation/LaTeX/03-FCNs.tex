@@ -1,0 +1,135 @@
+%!TEX root = Presentation-Thoma.tex
+
+\section{Fully Convolutional Networks (FCNs)}
+\subsection{Fully Convolutional Networks (FCNs)}
+
+\begin{frame}{Fully Convolutional Networks (FCNs)}
+    \begin{itemize}
+        \item Long et. al: Fully Convolutional Networks for Semantic Segmentation. 2014.
+        \item Ideen:
+        \begin{itemize}
+            \item Trainiere Netzwerk $net$ auf $w \times h$ Bildern zur
+                  Klassifikation.
+            \item Interpretiere $net$ als nicht-lineare Filter (CNN)
+            \item Wende Filter auf Bilder beliebiger Größe (min $w \times h$)
+                  mit stride $s \in \mathbb{N}_{\geq 1}$
+            \item Falls $s > 1$, dann mache upsampling.
+        \end{itemize}
+    \end{itemize}
+\end{frame}
+
+\begin{frame}{FCN Klassifikationsnetz}
+
+    \begin{figure}
+        \centering
+        \includegraphics[width=\textwidth]<1>{../images/model-ap5/vgg16-art.png}
+        \caption{VGG 16 Architektur}
+    \end{figure}
+\end{frame}
+
+\begin{frame}{FCN Insgesamt}
+    \begin{center}
+        \includegraphics[width=\textwidth]<1>{../images/model-ap5/fcn-overall.png}
+    \end{center}
+\end{frame}
+
+\begin{frame}{Upsampling}
+    Sollte besser \textit{transposed convolutional layer} genannt werden. Wird
+    manchmal auch \textit{deconvolutional layer} genannt.
+
+    Die folgenden Bilder stammen von dem Github user vdumoulin, \href{https://github.com/vdumoulin/conv_arithmetic}{github.com/vdumoulin/conv\_arithmetic}.
+\end{frame}
+
+\begin{frame}{Upsampling 1: Padding außen}
+    \begin{center}
+    \includegraphics[width=5cm]<1>{../images/upsampling1/upsampling1-00.png}
+    \includegraphics[width=5cm]<2>{../images/upsampling1/upsampling1-01.png}
+    \includegraphics[width=5cm]<3>{../images/upsampling1/upsampling1-02.png}
+    \includegraphics[width=5cm]<4>{../images/upsampling1/upsampling1-03.png}
+    \includegraphics[width=5cm]<5>{../images/upsampling1/upsampling1-04.png}
+    \includegraphics[width=5cm]<6>{../images/upsampling1/upsampling1-05.png}
+    \includegraphics[width=5cm]<7>{../images/upsampling1/upsampling1-06.png}
+    \includegraphics[width=5cm]<8>{../images/upsampling1/upsampling1-07.png}
+    \includegraphics[width=5cm]<9>{../images/upsampling1/upsampling1-08.png}
+    \includegraphics[width=5cm]<10>{../images/upsampling1/upsampling1-09.png}
+    \includegraphics[width=5cm]<11>{../images/upsampling1/upsampling1-10.png}
+    \includegraphics[width=5cm]<12>{../images/upsampling1/upsampling1-11.png}
+    \includegraphics[width=5cm]<13>{../images/upsampling1/upsampling1-12.png}
+    \includegraphics[width=5cm]<14>{../images/upsampling1/upsampling1-13.png}
+    \includegraphics[width=5cm]<15>{../images/upsampling1/upsampling1-14.png}
+    \includegraphics[width=5cm]<16>{../images/upsampling1/upsampling1-15.png}
+    \end{center}
+\end{frame}
+
+\begin{frame}{Upsampling 2: Padding um Pixel}
+    \begin{center}
+    \includegraphics[width=5cm]<1>{../images/upsampling2/upsampling2-00.png}
+    \includegraphics[width=5cm]<2>{../images/upsampling2/upsampling2-01.png}
+    \includegraphics[width=5cm]<3>{../images/upsampling2/upsampling2-02.png}
+    \includegraphics[width=5cm]<4>{../images/upsampling2/upsampling2-03.png}
+    \includegraphics[width=5cm]<5>{../images/upsampling2/upsampling2-04.png}
+    \includegraphics[width=5cm]<6>{../images/upsampling2/upsampling2-05.png}
+    \includegraphics[width=5cm]<7>{../images/upsampling2/upsampling2-06.png}
+    \includegraphics[width=5cm]<8>{../images/upsampling2/upsampling2-07.png}
+    \includegraphics[width=5cm]<9>{../images/upsampling2/upsampling2-08.png}
+    \includegraphics[width=5cm]<10>{../images/upsampling2/upsampling2-09.png}
+    \includegraphics[width=5cm]<11>{../images/upsampling2/upsampling2-10.png}
+    \includegraphics[width=5cm]<12>{../images/upsampling2/upsampling2-11.png}
+    \includegraphics[width=5cm]<13>{../images/upsampling2/upsampling2-12.png}
+    \includegraphics[width=5cm]<14>{../images/upsampling2/upsampling2-13.png}
+    \includegraphics[width=5cm]<15>{../images/upsampling2/upsampling2-14.png}
+    \includegraphics[width=5cm]<16>{../images/upsampling2/upsampling2-15.png}
+    \includegraphics[width=5cm]<17>{../images/upsampling2/upsampling2-16.png}
+    \includegraphics[width=5cm]<18>{../images/upsampling2/upsampling2-17.png}
+    \includegraphics[width=5cm]<19>{../images/upsampling2/upsampling2-18.png}
+    \includegraphics[width=5cm]<20>{../images/upsampling2/upsampling2-19.png}
+    \includegraphics[width=5cm]<21>{../images/upsampling2/upsampling2-20.png}
+    \includegraphics[width=5cm]<22>{../images/upsampling2/upsampling2-21.png}
+    \includegraphics[width=5cm]<23>{../images/upsampling2/upsampling2-22.png}
+    \includegraphics[width=5cm]<24>{../images/upsampling2/upsampling2-23.png}
+    \includegraphics[width=5cm]<25>{../images/upsampling2/upsampling2-24.png}
+    \end{center}
+\end{frame}
+
+\begin{frame}{FCN Ergebnisse}
+    \begin{figure}[ht]
+        \begin{minipage}[b]{0.45\linewidth}
+            \centering
+            \includegraphics*[width=\linewidth, keepaspectratio]{../images/7-img_07.png}
+        \end{minipage}
+        \hspace{0.5cm}
+        \begin{minipage}[b]{0.45\linewidth}
+            \centering
+            \includegraphics*[width=\linewidth, keepaspectratio]{../images/115-img_25.png}
+        \end{minipage}
+    \end{figure}
+
+    \begin{table}
+    \begin{tabular}{lrrr}
+    \toprule
+    \textbf{Model}        & \textbf{Accuracy} & \textbf{Precision} & \textbf{Recall}   \\ \midrule
+    Baseline              & 92.88 \%          & 76.13 \%         & 32.94 \% \\
+                          & {\tiny (+8 \%)}   & {\tiny (+4 \%)}  & {\tiny (+11 \%)}\\
+    Local model + opening & 93.42 \%          & 76.98 \%         & 40.65 \% \\
+                          & {\tiny (+62 \%)}  & {\tiny (+41 \%)} & {\tiny (+77 \%)}\\
+    FCN                   & 97.32 \%          & 85.87 \%         & 84.90 \% \\ \bottomrule
+    \end{tabular}
+    \end{table}
+\end{frame}
+
+\begin{frame}{FCN Ergebnisse}
+    \begin{table}
+    \begin{tabular}{lrrr}
+    \toprule
+    \textbf{Model}        & \textbf{Accuracy} & \textbf{Precision} & \textbf{Recall}   \\ \midrule
+    Baseline              & 92.88 \%          & 76.13 \%         & 32.94 \% \\
+                          & {\tiny (+8 \%)}   & {\tiny (+4 \%)}  & {\tiny (+11 \%)}\\
+    Local model + opening & 93.42 \%          & 76.98 \%         & 40.65 \% \\
+                          & {\tiny (+62 \%)}  & {\tiny (+41 \%)} & {\tiny (+77 \%)}\\
+    FCN                   & \textbf{97.32} \% & \textbf{85.87} \%& 84.90 \% \\ \midrule
+    KIT                   & 93 \%             & 69 \%            & 46 \% \\
+    Lausanne              & 96.5 \%           & 76 \%            & \textbf{93} \% \\
+    \bottomrule
+    \end{tabular}
+    \end{table}
+\end{frame}

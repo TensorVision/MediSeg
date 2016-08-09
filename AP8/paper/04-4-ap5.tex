@@ -1,0 +1,134 @@
+%!TEX root = vorlage.tex
+
+\subsection{Fully Convolutional Networks}\label{sec:ap5}
+
+\subsubsection{Architecture}
+In the following, the mean value of the image net dataset was subtracted from
+each image channel (mean blue: 103.939, mean green: 116.779, mean red: 123.68).
+
+For the following experiment, the VGG-16 architecture as introduced
+in~\cite{simonyan2014very} was used. Not only was the architecture used, but
+the network was also pre-trained on image net and used as described
+in~\cite{Fossard2016}. The VGG-16 architecture consists of 20~layers:
+
+\begin{enumerate}
+    \item \verb+conv1_1+, \verb+conv1_2+, \verb+pool1+: Two convolutional
+          layers with 64~filters of size $3 \times 3$ each, followed by max
+          pooling with a stride of $s = (2, 2)$ and a pooling region of
+          $p = (2, 2)$.
+    \item \verb+conv2_1+, \verb+conv2_2+, \verb+pool2+: Two convolutional
+          layers with 128~filters of size $3 \times 3$ each, followed by max
+          pooling with a stride of $s = (2, 2)$ and a pooling region of
+          $p = (2, 2)$.
+    \item \verb+conv3_1+, \verb+conv3_2+, \verb+conv3_3+, \verb+pool3+: Three
+          convolutional layers with 256~filters of size $3 \times 3$ each,
+          followed by max pooling with a stride of $s = (2, 2)$ and a pooling
+          region of $p = (2, 2)$.
+    \item \verb+conv4_1+, \verb+conv4_2+, \verb+conv4_3+, \verb+pool4+: Three
+          convolutional layers with 512~filters of size $3 \times 3$ each,
+          followed by max pooling with a stride of $s = (2, 2)$ and a pooling
+          region of $p = (2, 2)$.
+    \item \verb+conv5_1+, \verb+conv5_2+, \verb+conv5_3+, \verb+pool5+: Three
+          convolutional layers with 512~filters of size $3 \times 3$ each,
+          followed by max pooling with a stride of $s = (2, 2)$ and a pooling
+          region of $p = (2, 2)$.
+    \item \verb+fc6+: A fully connected layer with 4096~nodes.
+    \item \verb+fc7+: A fully connected layer with 1000~nodes.
+\end{enumerate}
+
+The network was trained on image net data. The idea is to use the general
+image recognition features learned in the first layers. Thus the network is a
+very sophisticated preprocessing algorithm.
+% The layer \verb+fc7+ is discarded
+% and the feature vector produced by \verb+fc6+ is used.
+
+After \verb+fc7+, a convolutional layer \verb+score_fr+ with $k$ filters of the
+shape $1 \times 1 \times 1000$ is added where $k$ is the number of classes.
+Then an upscore layer \verb+up+ is added to scale the coarse output of
+\verb+score_fr+ to the same size as the input image.
+
+The $k=2$ upsampling filters of size $64 \times 64$ were initialized as a
+bilinear upsampling. Those filters make the result so consistent. As they
+mainly interpolate between neighboring pixels, they will never give
+unrealistically small segments.
+
+The FCN was trained end-to-end with the mean softmax cross entropy
+between logits and labels as training objective:
+
+\[- \frac{1}{|D|} \sum_{(\mathbf{x}, \mathbf{y}) \in D} \sum_{y_i \in \mathbf{y}} \left [ y_i \ln a_i + (1-y_i) \ln(1 - a_i)\right ]\]
+
+where $D$ is the set of training data, $x$ is a feature vector, $y$ is a one-hot
+encoded target and $a_i$ is the prediction for the $i$-th class of the classifier.
+
+Each weight was regularized with L2 loss. This means the original objective
+function $f_\text{training data}(\mathbf{w})$ which gets minimized was modified
+to
+
+\[\tilde{f}_\text{training data}(\mathbf{w}) = f_\text{training data}(\mathbf{w}) + \sum_{w \in \mathbf{w} w^2}\]
+\clearpage
+Not only the given training data was used, but it was also heavily augmented by
+the following methods:
+
+\begin{itemize}
+    \item Horizontal flipping
+    \item Vertical flipping
+    \item Horizontal and vertical flipping
+    \item Random brightness adjustments
+    \item Random crops were taken
+\end{itemize}
+
+\subsubsection{Results}
+The FCN evaluation results are shown in \cref{table:challenge-results}. Our
+fully convolutional network is noticeably better than the other semantic
+segmentation systems.
+
+A training run with 5000 epochs took about 5.5 hours. Running the network on a
+single image takes in average $\SI{1.3}{\second}$.
+
+
+\subsubsection{Analysis of data augmentation}
+
+Data augmentation is commonly done to train the network to become invariant to
+changes in the data which should not matter. For example, in computer vision
+this is an image-wide change in brightness.
+
+Data augmentation becomes especially useful if very little data is present to
+artificially increase the available training material. However, it is unclear
+how much data is enough data and which data augmentation methods have which
+effect on the quality of the semantic segmentation system.
+
+We were interested in three properties: The quality of the segmentation system
+at the end of \num{10000} epochs (11 hours) of training, the stability of the
+quality during training and the speed of convergence.
+
+To evaluate the quality of the training, four metrics were used and evaluated
+on the test set after each 250~epochs:
+
+\begin{itemize}
+    \item Accuracy: $\frac{TP + TN}{TP + TN + FP + FN} \in [0, 1]$
+    \item Precision: $\frac{TP}{TP + FP} \in [0, 1]$
+    \item Recall: $\frac{TP}{TP + FP} \in [0, 1]$
+    \item F1-Score: $2 \frac{\text{Precision} \cdot \text{Recall}}{\text{Precision} + \text{Recall}} \in [0, 1]$
+\end{itemize}
+
+Other metrics besides the accuracy were used as over \SI{90}{\percent} of the
+data was background. Precision and recall are typical choices to solve this
+problem. We thought about using the F1 score as a single number is always
+simpler to compare than two numbers. However, for our experiments with FCNs on
+this dataset the Person correlation coefficient of the accuracy and the F1
+score is 0.96. The F1 score has lower values and a higher variance, but it
+shows the same characteristics for FCNs on this datasets.
+
+\Cref{fig:graph-accuracy-all} suggests that data augmentation has little to no
+effect on the overall accuracy. Only random crops seem to have a negative
+effect on accuracy.
+
+\Cref{fig:graph-precision-all,fig:graph-recall-all} show that the precision
+and recall have a lot of variance for all data augmentation methods. Random
+crops seem to have a negative effect on precision and recall as well.
+
+All training methods suffer from enormous outliers in the quality even during
+late stages in the training.
+
+We did not notice any effect of any data augmentation method on the stability
+during the training.

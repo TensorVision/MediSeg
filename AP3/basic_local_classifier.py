@@ -35,7 +35,7 @@ sys.path.append(
     os.path.abspath(os.path.join(os.path.dirname(__file__), os.path.pardir)))
 from utils import get_file_list
 import analyze
-from seg_utils import get_image
+from seg_utils import get_image, get_class_weight
 
 
 def get_features(x, y, image, model_nr=2):
@@ -323,11 +323,14 @@ def main(hypes_file, data_dir, override):
         t0 = time.time()
         sep = hypes['solver']['samples_per_epoch']
         if True:
+            class_weight = get_class_weight(hypes)
+            logging.info("class_weights = %s", class_weight)
             model.fit_generator(generator,
                                 samples_per_epoch=sep,
                                 nb_epoch=hypes['solver']['epochs'],
                                 verbose=1,
-                                validation_data=(x_train, y_train))
+                                validation_data=(x_train, y_train),
+                                class_weight=class_weight)
         else:
             logging.info("Fit with .fit")
             x_train, y_train = inputs(hypes, None, 'train', data_dir)

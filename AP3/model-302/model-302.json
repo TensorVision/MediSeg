@@ -12,7 +12,7 @@
   },
 
   "segmenter": {
-      "invert": true
+      "invert": false
   },
 
   "data": {
@@ -20,12 +20,14 @@
     "test": "../DATA/testfiles.json"
   },
 
-  "classes": [
+ "classes": [
     {"name": "background",
      "colors": ["#000000"],
-     "output": "#ff000000"},
+     "output": "#ff000000",
+     "weight": 1},
     {"name": "instrument",
      "colors": ["#464646", "#a0a0a0", "#ffffff"],
-     "output": "#00ff007f"}
-  ]
+     "output": "#00ff007f",
+     "weight": 3}
+ ]
 }

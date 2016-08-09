@@ -1,0 +1,21 @@
+\documentclass[hyperref={pdfpagelabels=false},usepdftitle=false]{beamer}
+\usepackage{minted} % needed for the inclusion of source code
+\usepackage{../templates/myStyle}
+\setbeamertemplate{caption}{\raggedright\insertcaption\par}
+\begin{document}
+
+\title{\titleText}
+\subtitle{}
+\author{\tutor}
+\date{19. Juli 2016}
+\subject{Seminar Informatik}
+
+\frame{\titlepage}
+
+\input{01-Problemstellung}
+\input{02-Ansaetze}
+\input{03-FCNs}
+\input{04-TensorVision}
+\input{05-Ende}
+
+\end{document}

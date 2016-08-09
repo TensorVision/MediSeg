@@ -11,10 +11,12 @@
 \captionsetup{format=hang}
 \usepackage{url}
 \usepackage[super]{nth}
+\usepackage{nicefrac}
 \usepackage[breaklinks]{hyperref}
 \def\UrlBreaks{\do\/\do-}
 \usepackage[absolute,overlay]{textpos}
 \usepackage{tikz}
+\usetikzlibrary{shapes, calc, shapes, arrows, snakes}
 \usepackage{csquotes}
 \usepackage{booktabs}  % for \toprule, \midrule and \bottomrule
 \usepackage{pbox}
@@ -56,7 +58,7 @@
 \newcommand\independent{\protect\mathpalette{\protect\independenT}{\perp}}
 \def\independenT#1#2{\mathrel{\rlap{$#1#2$}\mkern2mu{#1#2}}}
 
-\newcommand{\titleboth}{A Survey of Semantic Segmentation}
+\newcommand{\titleboth}{Semantische Segmentierung mit Deep Learning}
 \title{\titleboth}
 \author{%
 \makebox[.4\linewidth]{Marvin Teichmann\thanks{\IEEEauthorrefmark{1} These authors contributed equally to this work.}\IEEEauthorrefmark{1}}% ORCID: http://orcid.org/0000-0002-9178-2970
@@ -75,11 +77,11 @@
 
 \input{01-introduction}
 \input{02-related-work}
-\input{03-0-experiments}
-\input{04-discussion}
-\input{05-acknowledgement}
+\input{03-models}
+\input{04-0-experiments}
+\input{05-discussion}
+\input{06-acknowledgment}
 
-\newpage
 \bibliography{literature}
 \bibliographystyle{IEEEtranSA}\vfill
 % \columnbreak

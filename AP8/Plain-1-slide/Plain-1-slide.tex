@@ -1,0 +1,48 @@
+\documentclass{beamer}
+\usetheme{Frankfurt}
+\usecolortheme{default}
+\usepackage{hyperref}
+\usepackage[utf8]{inputenc} % this is needed for german umlauts
+\usepackage[english]{babel} % this is needed for german umlauts
+\usepackage[T1]{fontenc}    % this is needed for correct output of umlauts in pdf
+\usepackage{booktabs}
+
+\begin{document}
+
+\title{Semantische Segmentierung von medizinischen Instrumenten mit Deep Learning Techniken}
+\author{Martin Thoma und Marvin Teichmann}
+\date{07. July 2016}
+\subject{Computer Science}
+\setbeamertemplate{navigation symbols}{}
+
+
+\section{Ergebnisse}
+\begin{frame}[plain]{}
+
+\begin{figure}[ht]
+    \begin{minipage}[b]{0.45\linewidth}
+        \centering
+        \includegraphics*[width=\linewidth, keepaspectratio]{7-img_07.png}
+    \end{minipage}
+    \hspace{0.5cm}
+    \begin{minipage}[b]{0.45\linewidth}
+        \centering
+        \includegraphics*[width=\linewidth, keepaspectratio]{115-img_25.png}
+    \end{minipage}
+\end{figure}
+
+
+    \begin{table}
+    \begin{tabular}{lrrr}
+    \toprule
+    \textbf{Model}        & \textbf{Accuracy} & \textbf{Precision} & \textbf{Recall}   \\ \midrule
+    Baseline              & 92.88 \%          & 76.13 \%         & 32.94 \% \\
+                          & {\tiny (+8 \%)}   & {\tiny (+4 \%)}  & {\tiny (+11 \%)}\\
+    Local model + opening & 93.42 \%          & 76.98 \%         & 40.65 \% \\
+                          & {\tiny (+62 \%)}  & {\tiny (+41 \%)} & {\tiny (+77 \%)}\\
+    FCN                   & 97.32 \%          & 85.87 \%         & 84.90 \% \\ \bottomrule
+    \end{tabular}
+    \end{table}
+\end{frame}
+
+\end{document}

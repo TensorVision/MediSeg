@@ -38,3 +38,24 @@ def get_image(image_path, force_mode=None):
         return None
     pixel_values = numpy.array(pixel_values).reshape((height, width, channels))
     return pixel_values
+
+
+def get_class_weight(hypes):
+    """
+    Get the weight of classes. The default value is 1.
+
+    Parameters
+    ----------
+    hypes : dict
+
+    Returns
+    -------
+    dict
+        Class weights, mapping class indices to floats
+    """
+    class_weights = {}
+    for i, cl in enumerate(hypes['classes']):
+        class_weights[i] = 1.0
+        if 'weight' in cl:
+            class_weights[i] = float(cl['weight'])
+    return class_weights

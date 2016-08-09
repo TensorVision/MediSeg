@@ -1,0 +1,33 @@
+{
+  "model": {
+    "name": "model-301"
+  },
+
+  "model_nr": 1,
+
+  "solver": {
+      "epochs": 1,
+      "samples_per_epoch": 49152000,
+      "batch_size": 512
+  },
+
+  "segmenter": {
+      "invert": false
+  },
+
+  "data": {
+    "train": "../DATA/trainfiles.json",
+    "test": "../DATA/testfiles.json"
+  },
+
+  "classes": [
+    {"name": "background",
+     "colors": ["#000000"],
+     "output": "#ff000000",
+     "weight": 1},
+    {"name": "instrument",
+     "colors": ["#464646", "#a0a0a0", "#ffffff"],
+     "output": "#00ff007f",
+     "weight": 2}
+  ]
+}

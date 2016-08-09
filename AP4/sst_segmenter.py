@@ -7,10 +7,12 @@ import json
 import os
 import numpy as np
 import logging
-import itertools
-import random
 import sys
 import time
+
+logging.basicConfig(format='%(asctime)s %(levelname)s %(message)s',
+                    level=logging.INFO,
+                    stream=sys.stdout)
 
 from PIL import Image
 import numpy
@@ -24,25 +26,31 @@ import sklearn
 
 # Model
 from keras.models import Sequential
-from keras.layers import Dense, Activation, Flatten
+from keras.layers import Dense, Flatten
 from keras.layers import Convolution2D, Reshape
 from keras.layers import MaxPooling2D, Dropout
 import keras.optimizers
+
+from tensorvision.utils import load_segmentation_mask
 
 sys.path.append(
     os.path.abspath(os.path.join(os.path.dirname(__file__), os.path.pardir)))
 from utils import get_file_list
 
-logging.basicConfig(format='%(asctime)s %(levelname)s %(message)s',
-                    level=logging.INFO,
-                    stream=sys.stdout)
 import analyze
 from seg_utils import get_image
 
 
-def generate_batch(hypes, data_dir, phase):
-    """Generate patches."""
-    x_files, y_files = get_file_list(phase, data_dir)
+def generate_batch(hypes, phase):
+    """
+    Generate patches.
+
+    Parameters
+    ----------
+    hypes : dict
+    phase : 'train' or 'test'
+    """
+    x_files, y_files = get_file_list(hypes, phase)
     x_files, y_files = sklearn.utils.shuffle(x_files,
                                              y_files,
                                              random_state=0)
@@ -51,18 +59,19 @@ def generate_batch(hypes, data_dir, phase):
         for x, y in zip(x_files, y_files):
             logging.info("Read '%s' for data...", x)
             image = get_image(x, 'RGB')
-            label = get_image(y, 'L')
-            label = normalize_labels(label)
+            label = load_segmentation_mask(hypes, y)
             im = Image.open(x, 'r')
             width, height = im.size
             image_vals = get_features(hypes, image, 'data')
             label_vals = get_features(hypes, label, 'label')
+            # print("image_vals = %s" % str(list(image_vals)))
             for patch, label_ in zip(image_vals, label_vals):
                 patch = img_to_array(patch)
                 label_ = img_to_array(label_)
                 _, w, h = label_.shape
                 label_ = label_.reshape((w, h))
                 if phase == 'val' and 1.0 not in label_:
+                    print("continue")
                     continue
                 # scipy.misc.imshow(patch)
                 # scipy.misc.imshow(label_)
@@ -89,7 +98,10 @@ def get_features(hypes, image, img_type):
     numpy array
         patch of size stride x stride from image
     """
-    width, height, _ = image.shape
+    if img_type == 'data':
+        width, height, _ = image.shape
+    else:
+        width, height = image.shape
     stride = hypes['arch']['stride']
     patch_size = hypes['arch']['patch_size']
     if img_type == 'data':
@@ -100,40 +112,40 @@ def get_features(hypes, image, img_type):
         window_width = stride
         left_pad = int(math.floor(patch_size - stride) / 2)
         top_pad = left_pad
-    width, height, _ = image.shape
     for x in range(left_pad, width - window_width, stride):
         for y in range(top_pad, height - window_width, stride):
             res = image[x:(x + window_width), y:(y + window_width)]
-            assert res.shape[0] == window_width, "width"
-            assert res.shape[1] == window_width, "heigth"
+            if res.shape[0] != window_width or res.shape[1] != window_width:
+                print("res shape: %s" % str(res.shape))
+                print("window_width: %s" % str(window_width))
+                continue  # quick fix
+            assert res.shape[0] == window_width, \
+                ("width (res.shape[0]=%i, window_width=%i)" %
+                 (res.shape[0], window_width))
+            assert res.shape[1] == window_width, \
+                ("height (res.shape[1]=%i, window_width=%i)" %
+                 (res.shape[1], window_width))
             yield res
-
-
-def normalize_labels(segmentation):
-    """Set all labels which are not 0 to 1."""
-    return segmentation.astype(bool).astype(int)
 
 
 def get_traindata_single_file(hypes, x, y):
     """Get trainingdata for a single file x with segmentation file y."""
     xs, ys = [], []
     logging.info("Read '%s' for data...", x)
-    image = get_image(x, 'RGB')
-    label = get_image(y, 'L')
-    label = normalize_labels(label)
-    im = Image.open(x, 'r')
-    width, height = im.size
+    label = load_segmentation_mask(hypes, y)
+    im = Image.open(x, 'RGB')
+    width, height, _ = im.size
     for x in range(width):
         for y in range(height):
-            image_val = get_features(x, y)
-            label_val = (label[y][x][0] == 0)  # only 0 is background
+            image_val = get_features(hypes, im, 'data')
+            label_val = label[y][x]
 
             xs.append(image_val)
             ys.append(label_val)
     return numpy.array(xs), numpy.array(ys, dtype=int)
 
 
-def main(hypes_file, data_dir, override):
+def main(hypes_file, out_dir, override):
     """Orchestrate."""
     with open(hypes_file, 'r') as f:
         hypes = json.load(f)
@@ -141,13 +153,10 @@ def main(hypes_file, data_dir, override):
     model_file_path = '%s.yaml' % hypes['model']['name']
     weights_file_path = '%s.hdf5' % hypes['model']['name']
 
-    color_changes = {(255, 255, 255): (0, 255, 0),
-                     'default': (0, 0, 0)}
-
     if not os.path.isfile(model_file_path) or override:
         patch_size = hypes['arch']['patch_size']
         img_channels = hypes['arch']['num_channels']
-        nb_out = hypes['arch']['stride']**2  # number of classes is 2
+        nb_out = hypes['arch']['stride']**len(hypes['classes'])
 
         model = Sequential()
         model.add(Convolution2D(64, 3, 3, border_mode='valid',
@@ -185,14 +194,15 @@ def main(hypes_file, data_dir, override):
                                         epsilon=1e-08)
         model.compile(loss=hypes['solver']['loss'],
                       optimizer=opt)  # hypes['solver']['optimizer']
+        logging.info("model compiled")
 
         # while 1:
-        #     b = generate_batch(hypes, data_dir, 'train')
+        #     b = generate_batch(hypes, 'train')
 
         # for e in range(10):
         #     print 'Epoch', e
         #     batches = 0
-        #     for X_batch, Y_batch in generate_batch(hypes, data_dir, 'train'):
+        #     for X_batch, Y_batch in generate_batch(hypes, 'train'):
         #         Y_batch = np.reshape(Y_batch, (-1, 400))
         #         loss = model.fit(X_batch,
         #                          Y_batch,
@@ -205,19 +215,19 @@ def main(hypes_file, data_dir, override):
         #             break
 
         # # Train
-        g = generate_batch(hypes, data_dir, 'val')
+        g = generate_batch(hypes, 'train')
+        logging.info("generate_batch")
         X_test, Y_test = g.next()
-
         # print("#" * 80)
         # print(X_test.shape)
         # print(Y_test.shape)
-
-        model.fit_generator(generate_batch(hypes, data_dir, 'train'),
+        logging.info("start fit_generator")
+        model.fit_generator(generate_batch(hypes, 'train'),
                             samples_per_epoch=hypes['solver']['samples_per_epoch'],
                             nb_epoch=hypes['solver']['epochs'],
                             verbose=1,
                             validation_data=(X_test, Y_test))
-        x_files, y_files = get_file_list('train', data_dir)
+        x_files, y_files = get_file_list(hypes, 'train')
         x_files, y_files = sklearn.utils.shuffle(x_files,
                                                  y_files,
                                                  random_state=0)
@@ -241,7 +251,6 @@ def main(hypes_file, data_dir, override):
         #         model.fit(x_train, y_train,
         #                   batch_size=128,
         #                   nb_epoch=1,
-        #                   # callbacks=[callb]
         #                   )
         #         ij += 1
         #         print("%i of %i" %
@@ -256,15 +265,13 @@ def main(hypes_file, data_dir, override):
         model.save_weights(weights_file_path)
 
         # Evaluate
-        data = get_file_list('val', data_dir)
+        data = get_file_list(hypes, 'test')
         analyze.evaluate(hypes,
                          data,
-                         data_dir,
+                         out_dir,
                          model,
                          elements=[0, 1],
                          get_segmentation=get_segmentation,
-                         load_label_seg=load_label_seg,
-                         color_changes=color_changes,
                          verbose=True)
     else:
         with open(model_file_path) as f:
@@ -273,15 +280,13 @@ def main(hypes_file, data_dir, override):
         model.load_weights(weights_file_path)
         model.compile(optimizer=hypes['solver']['optimizer'],
                       loss='binary_crossentropy')
-        data = get_file_list('test', data_dir)
+        data = get_file_list(hypes, 'test')
         analyze.evaluate(hypes,
                          data,
-                         data_dir,
+                         out_dir,
                          model,
                          elements=[0, 1],
                          get_segmentation=get_segmentation,
-                         load_label_seg=load_label_seg,
-                         color_changes=color_changes,
                          verbose=True)
 
 
@@ -369,21 +374,6 @@ def get_segmentation(hypes, image_path, model):
     return segmentation > threshold
 
 
-def load_label_seg(yfile):
-    """
-    Load the segmentation from a file.
-
-    Parameters
-    ----------
-    yfile : str
-        Path to a segmentation mask image.
-    """
-    correct_seg = get_image(yfile, 'L')
-    correct_seg = normalize_labels(correct_seg)
-    correct_seg = np.squeeze(correct_seg)
-    return correct_seg
-
-
 def is_valid_file(parser, arg):
     """
     Check if arg is a valid file that already exists on the file system.
@@ -409,16 +399,15 @@ def get_parser():
     from argparse import ArgumentParser, ArgumentDefaultsHelpFormatter
     parser = ArgumentParser(description=__doc__,
                             formatter_class=ArgumentDefaultsHelpFormatter)
-    parser.add_argument("--data",
-                        dest="data",
-                        help=("data directory which contains "
-                              "'Segmentation_Rigid_Training'"),
-                        required=True)
     parser.add_argument("--hypes",
                         dest="hypes_file",
                         help=("Configuration file in JSON format"),
                         type=lambda x: is_valid_file(parser, x),
                         metavar="FILE",
+                        required=True)
+    parser.add_argument("--out",
+                        dest="data",
+                        help=("output directory"),
                         required=True)
     parser.add_argument("--override",
                         action="store_true", dest="override", default=False,

@@ -1,0 +1,34 @@
+%!TEX root = vorlage.tex
+
+\subsection{Base line experiments}\label{sec:ap3}
+
+The most basic information for pixel-wise semantic segmentation is the color of
+the pixel. Typically, images are in RGB format. This means the image has
+three~channels ({\color{red} R}ed, {\color{green} G}reen, {\color{blue} B}lue).
+Each channel has 8~bit and thus $2^8 = 256$ possible values, ranging from 0 to
+255. This gives ${(2^8)}^3 = \num{16777216}$ possible colors for each pixel.
+Obviously, only the color can not give a perfect result in all circumstances as
+the measured color changes due to smoke, shadows, specular~highlights and
+insufficient illumination. But it gives an impression how important local
+features are for the specific problem.
+
+A model with 64~sigmoid nodes in a first hidden layer with $\SI{50}{\percent}$
+dropout~\cite{srivastava2014dropout}, 64~ReLu nodes in a second hidden layer
+with $\SI{50}{\percent}$ dropout and one sigmoid output unit was used as a
+baseline.
+
+The architecture of the baseline model is visualized
+in~\cref{fig:baseline-architecture}. Neither preprocessing nor data
+augmentation were applied.
+
+The baseline model achieved a pixel-wise accuracy
+of~$\SI{92.88}{\percent}$,\footnote{This is the same as the DICE coefficient.}
+a precision of $\SI{76.13}{\percent}$ and a recall of $\SI{32.94}{\percent}$.
+The confusion matrix is given in~\cref{table:cm-model-301}.
+
+\begin{figure}[ht]
+    \centering
+    \input{mlp-architecture}
+    \caption{Architecture of the baseline model.}
+    \label{fig:baseline-architecture}
+\end{figure}
